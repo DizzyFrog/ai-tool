@@ -87,3 +87,17 @@ class AuditLog(BaseModel, TimestampMixin):
     response_time = fields.IntField(default=0, description="响应时间(单位ms)", index=True)
     request_args = fields.JSONField(null=True, description="请求参数")
     response_body = fields.JSONField(null=True, description="返回数据")
+    
+
+# 添加数据模型
+class Course(BaseModel, TimestampMixin):
+    name = fields.CharField(max_length=64, description="课程名称")
+    teacher = fields.CharField(max_length=64, description="授课教师")
+    credit = fields.IntField(description="学分")
+    desc = fields.TextField(null=True, description="课程描述")
+    
+class Student(BaseModel, TimestampMixin):
+    name = fields.CharField(max_length=64, description="学生姓名")
+    student_id = fields.CharField(max_length=32, unique=True, description="学号")
+    courses = fields.ManyToManyField("models.Course", related_name="students", description="选修课程")
+    created_at = fields.DatetimeField(auto_now_add=True, description="创建时间")

@@ -27,6 +27,25 @@ export const basicRoutes = [
     ],
     meta: { order: 1 },
   },
+  //student 模块
+  {
+    name: '学生管理',
+    path: '/student',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/student/index.vue'),
+        name: 'StudentDefault',
+        meta: {
+          title: '学生管理',
+          icon: 'mdi:account-school',
+          affix: true,
+        },
+      },
+    ],
+    meta: { order: 3 },
+  },
   {
     name: t('views.profile.label_profile'),
     path: '/profile',

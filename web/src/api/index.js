@@ -39,4 +39,9 @@ export default {
   deleteDept: (params = {}) => request.delete('/dept/delete', { params }),
   // auditlog
   getAuditLogList: (params = {}) => request.get('/auditlog/list', { params }),
+
+  getStudentList: (params = {}) => request.get('/student/list', { params }),
+  createStudent: (data) => request.post('/student/create', data),
+  updateStudent: (data) => request.put('/student/update', data),
+  deleteStudent: (id) => request.delete(`/student/delete/${id}`),
 }
