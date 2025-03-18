@@ -44,4 +44,17 @@ export default {
   createStudent: (data) => request.post('/student/create', data),
   updateStudent: (data) => request.put('/student/update', data),
   deleteStudent: (id) => request.delete(`/student/delete/${id}`),
+
+  //smarttool
+
+  downloadTemplate: (templateName) => request.get(`/smarttool/download-template/${templateName}`),
+  uploadFile: (formData) => request.post('/smarttool/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  submitSmartToolForm: (data) => request.post('/smarttool/submit_form', data),
+  startSmartToolTask: () => request.post('/smarttool/start_task'),
+  confirmSmartToolDownload: () => request.get('/smarttool/confirm_download'),
+
+
+
 }

@@ -152,6 +152,10 @@ class HttpAuditLogMiddleware(BaseHTTPMiddleware):
         request.state.request_args = request_args
 
     async def after_request(self, request: Request, response: Response, process_time: int):
+        # 检查是否跳过审计日志
+        if response.headers.get("X-Audit-Log-Skip") == "true":
+            return response
+            
         if request.method in self.methods:
             for path in self.exclude_paths:
                 if re.search(path, request.url.path, re.I) is not None:

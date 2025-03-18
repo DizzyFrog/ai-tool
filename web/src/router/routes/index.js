@@ -46,6 +46,26 @@ export const basicRoutes = [
     ],
     meta: { order: 3 },
   },
+  // smart-tool 模块
+  {
+    name: '智能工具',
+    path: '/smart-tools',
+  
+    component: Layout,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/smart-tools/index.vue'),
+        name: 'SmartToolDefault',
+        meta: {
+          title: '智能工具',
+          icon: 'mdi:robot', // 可根据实际情况更换图标
+          affix: true,
+        },
+      },
+    ],
+    meta: { order: 4 }, // 可根据需要调整顺序
+  },
   {
     name: t('views.profile.label_profile'),
     path: '/profile',
