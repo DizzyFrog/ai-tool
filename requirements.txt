@@ -28,6 +28,8 @@ markupsafe==3.0.2
 mdurl==0.1.2
 mypy-extensions==1.0.0
 orjson==3.10.14
+pandas==2.2.3
+openpyxl==3.1.5  
 packaging==24.2
 passlib==1.7.4
 pathspec==0.12.1
@@ -58,3 +60,4 @@ uvicorn==0.34.0
 uvloop==0.21.0; sys_platform != 'win32'
 watchfiles==1.0.4
 websockets==14.1
+

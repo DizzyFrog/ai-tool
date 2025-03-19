@@ -15,9 +15,9 @@ async def download_template(template_name: str = Path(..., description="模板�
 
 
 # 处理 Excel 文件上传
-@router.post("/upload",summary="处理 Excel 文件上传")
-async def upload_file(file: UploadFile = File(...), form_data: Dict[str, str] = Form(...)):
-    return await smarttool_controller.upload_file(file, form_data)
+@router.post("/upload_file",summary="处理 Excel 文件上传")
+async def upload_file(file: UploadFile = File):
+    return await smarttool_controller.upload_file(file)
 
 # 处理表单提交
 @router.post("/submit_form",summary="处理表单提交")

@@ -30,7 +30,7 @@ def create_app() -> FastAPI:
         description=settings.APP_DESCRIPTION,
         version=settings.VERSION,
         openapi_url="/openapi.json",
-        middleware=make_middlewares(),
+        # middleware=make_middlewares(),
         lifespan=lifespan,
     )
     register_exceptions(app)

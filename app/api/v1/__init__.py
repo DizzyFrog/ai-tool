@@ -22,4 +22,4 @@ v1_router.include_router(apis_router, prefix="/api", dependencies=[DependPermiss
 v1_router.include_router(depts_router, prefix="/dept", dependencies=[DependPermisson])
 v1_router.include_router(auditlog_router, prefix="/auditlog", dependencies=[DependPermisson])
 v1_router.include_router(student_router, prefix="/student", dependencies=[DependPermisson])
-v1_router.include_router(smarttool_router, prefix="/smarttool", dependencies=[DependPermisson])
+v1_router.include_router(smarttool_router, prefix="/smarttool")
