@@ -6,7 +6,7 @@ const Layout = () => import('@/layout/index.vue')
 export const basicRoutes = [
   {
     path: '/',
-    redirect: '/workbench', // 默认跳转到首页
+    redirect: '/smart-tools', // 默认跳转到首页
     meta: { order: 0 },
   },
   {

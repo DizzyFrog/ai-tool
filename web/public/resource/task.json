@@ -4,5 +4,6 @@
   "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
   "api_key": "sk-14a2a30d135148dcaef8a673a21af02a",
   "model": "qwen-long",
-  "default": "0"
+  "default": "0",
+  "template": "template1"
 }

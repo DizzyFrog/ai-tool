@@ -2,12 +2,30 @@ from app.log import logger
 import pandas as pd
 import openpyxl
 import json
+from pathlib import Path
+from .aiclient import aiclient
+from .resolver import resolver
 class SmarttoolService:
     
     
     def __init__(self):
-        self.task_json_path = "web/public/resource/task.json"
-        pass
+        self.task_json_path = Path("web/public/resource/task.json")
+        self.output_dir = Path("web/public/resource/file/output")
+        self.output_dir.mkdir(parents=True, exist_ok=True)  # 确保输出目录存在
+
+    def process_task(self):
+        try:
+            logger.info("开始处理任务")
+
+            # 解析
+            result = resolver.process_data()
+            chapter_list = resolver.get_data_result()
+            resolver.get_docx(chapter_list)
+            
+        except Exception as e:
+            logger.error(f"处理任务时发生错误: {str(e)}")
+        
+        return None
     
     async def validateExcel(self, file):
         # 在这里添加Excel验证逻辑

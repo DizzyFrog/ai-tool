@@ -1,0 +1,182 @@
+{
+    "message日志监听任务管理": {
+        "角色": "管理员，message日志监听模块，message文件",
+        "message日志监听任务新增": [
+            [
+                "接收message日志监听任务新增指令",
+                "新增message日志监听任务信息",
+                "返回message日志监听任务新增结果"
+            ],
+            [
+                "message日志监听任务新增请求数据",
+                "message日志监听任务新增记录",
+                "message日志监听任务新增记录插入"
+            ]
+        ],
+        "message日志监听任务删除": [
+            [
+                "接收message日志监听任务删除指令",
+                "删除message日志监听任务",
+                "返回message日志监听任务删除结果"
+            ],
+            [
+                "message日志监听任务删除请求数据",
+                "message日志监听任务删除记录",
+                "message日志监听任务删除记录插入"
+            ]
+        ],
+        "message日志监听任务修改": [
+            [
+                "接收message日志监听任务修改指令",
+                "修改message日志监听任务",
+                "返回message日志监听任务修改结果"
+            ],
+            [
+                "message日志监听任务修改请求数据",
+                "message日志监听任务修改记录",
+                "message日志监听任务修改记录插入"
+            ]
+        ],
+        "message日志监听任务查询": [
+            [
+                "接收message日志监听任务查询指令",
+                "查询获取message日志监听任务",
+                "返回message日志监听任务查询结果"
+            ],
+            [
+                "message日志监听任务查询请求数据",
+                "message日志监听任务查询记录",
+                "message日志监听任务查询记录插入"
+            ]
+        ]
+    },
+    "message日志采集": {
+        "角色": "管理员，message日志监听模块，message文件",
+        "message日志采集": [
+            [
+                "接收message日志采集指令",
+                "message日志采集",
+                "返回message日志采集结果"
+            ],
+            [
+                "message日志采集请求数据",
+                "message日志采集记录",
+                "message日志采集记录插入"
+            ]
+        ],
+        "message日志采集模板下发": [
+            [
+                "接收message日志采集模板下发指令",
+                "message日志采集模板下发",
+                "返回message日志采集模板下发结果"
+            ],
+            [
+                "message日志采集模板下发请求数据",
+                "message日志采集模板下发记录",
+                "message日志采集模板下发记录插入"
+            ]
+        ],
+        "message日志采集日志备份": [
+            [
+                "接收message日志采集日志备份指令",
+                "message日志采集日志备份",
+                "返回message日志采集日志备份结果"
+            ],
+            [
+                "message日志采集日志备份请求数据",
+                "message日志采集日志备份记录",
+                "message日志采集日志备份记录插入"
+            ]
+        ]
+    },
+    "message日志预处理": {
+        "角色": "管理员，message日志监听模块，message文件",
+        "message日志预处理稽核": [
+            [
+                "接收message日志预处理稽核指令",
+                "message日志预处理稽核",
+                "返回message日志预处理稽核结果"
+            ],
+            [
+                "message日志预处理稽核请求数据",
+                "message日志预处理稽核记录",
+                "message日志预处理稽核记录插入"
+            ]
+        ],
+        "message日志预处理检测": [
+            [
+                "接收message日志预处理检测指令",
+                "message日志预处理检测",
+                "返回message日志预处理检测结果"
+            ],
+            [
+                "message日志预处理检测请求数据",
+                "message日志预处理检测记录",
+                "message日志预处理检测记录插入"
+            ]
+        ],
+        "message日志预处理清理": [
+            [
+                "接收message日志预处理清理指令",
+                "message日志预处理清理",
+                "返回message日志预处理清理结果"
+            ],
+            [
+                "message日志预处理清理请求数据",
+                "message日志预处理清理记录",
+                "message日志预处理清理记录插入"
+            ]
+        ]
+    },
+    "message日志gz相关信息过滤模板维护": {
+        "角色": "管理员，message日志监听模块，message文件",
+        "message日志gz相关信息过滤模板新增": [
+            [
+                "接收message日志gz相关信息过滤模板新增指令",
+                "新增message日志gz相关信息过滤模板信息",
+                "返回message日志gz相关信息过滤模板新增结果"
+            ],
+            [
+                "message日志gz相关信息过滤模板新增请求数据",
+                "message日志gz相关信息过滤模板新增记录",
+                "message日志gz相关信息过滤模板新增记录插入"
+            ]
+        ],
+        "message日志gz相关信息过滤模板删除": [
+            [
+                "接收message日志gz相关信息过滤模板删除指令",
+                "删除message日志gz相关信息过滤模板",
+                "返回message日志gz相关信息过滤模板删除结果"
+            ],
+            [
+                "message日志gz相关信息过滤模板删除请求数据",
+                "message日志gz相关信息过滤模板删除记录",
+                "message日志gz相关信息过滤模板删除记录插入"
+            ]
+        ],
+        "message日志gz相关信息过滤模板修改": [
+            [
+                "接收message日志gz相关信息过滤模板修改指令",
+                "修改message日志gz相关信息过滤模板",
+                "返回message日志gz相关信息过滤模板修改结果"
+            ],
+            [
+                "message日志gz相关信息过滤模板修改请求数据",
+                "message日志gz相关信息过滤模板修改记录",
+                "message日志gz相关信息过滤模板修改记录插入"
+            ]
+        ],
+        "message日志gz相关信息过滤模板查询": [
+            [
+                "接收message日志gz相关信息过滤模板查询指令",
+                "查询获取message日志gz相关信息过滤模板",
+                "返回message日志gz相关信息过滤模板查询结果"
+            ],
+            [
+                "message日志gz相关信息过滤模板查询请求数据",
+                "message日志gz相关信息过滤模板查询记录",
+                "message日志gz相关信息过滤模板查询记录插入"
+            ]
+        ]
+    }
+}

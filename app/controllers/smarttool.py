@@ -4,15 +4,21 @@ from fastapi import UploadFile
 import shutil
 from pathlib import Path
 from ..service.SmarttoolService import smarttool_service
+from app.core.bgtask import BgTasks
+from app.log import logger
 
 class SmarttoolController:
     def __init__(self):
         self.template_dir = Path("web/public/resource/file")
         self.upload_dir = Path("web/public/resource/file/uploads")
+        self.output_dir = Path("web/public/resource/file/output")
+        # 确保输出目录存在
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
     async def download_template(self, template_name: str):
         template_file = self.template_dir / f"{template_name}.xlsx"
         if template_file.exists():
+            await smarttool_service.update_config({"template":template_name})
             # 返回文件的相对URL地址
             return {
                 "code": 200,
@@ -74,17 +80,31 @@ class SmarttoolController:
         }
 
     async def start_task(self):
-        # 模拟任务处理，实际项目中可能需要更复杂的逻辑
-        # 例如创建一个输出文件
-        output_file = self.output_dir / "result.xlsx"
-        with open(output_file, "wb") as f:
-            f.write(b"Task result data")
+        try:
+            # 初始化后台任务对象
+            await BgTasks.init_bg_tasks_obj()
             
-        return {
-            "message": "任务启动成功",
-            "output_file": str(output_file)
-        }
+            logger.info("开始处理任务 in controller")
+            
+            # 修改为调用 Service 层的方法
+            await BgTasks.add_task(smarttool_service.process_task)
+            # 确保任务执行
+            await BgTasks.execute_tasks()
+            
+            return {
+                "code": 200,
+                "message": "任务启动成功",
+                "data": {
+                    "status": "processing"
+                }
+            }
+        except Exception as e:
+            return {
+                "code": 500,
+                "message": f"任务启动失败: {str(e)}"
+            }
 
+    # 删除原 controller 中的 process_task 方法
     async def confirm_download(self):
         # 返回输出文件
         output_file = self.output_dir / "result.xlsx"
