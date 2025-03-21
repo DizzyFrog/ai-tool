@@ -3,6 +3,7 @@ from typing import Dict
 from app.controllers.smarttool import smarttool_controller
 from app.schemas import SuccessExtra
 from fastapi.responses import FileResponse
+from fastapi import BackgroundTasks
 
 router = APIRouter()
 
@@ -26,8 +27,13 @@ async def submit_form(form_data: Dict[str, str]):
 
 # 开始执行任务
 @router.post("/start_task",summary="开始执行任务")
-async def start_task():
-    return await smarttool_controller.start_task()
+async def start_task(background_tasks: BackgroundTasks):
+    return await smarttool_controller.start_task(background_tasks)
+
+#查询进度
+@router.get("/get_progress",summary="查询进度")
+async def get_progress():
+    return await smarttool_controller.get_task_progress()
 
 # 确认下载文件
 @router.get("/confirm_download",summary="确认下载文件") 

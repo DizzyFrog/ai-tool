@@ -1,6 +1,6 @@
 import os
 from fastapi.responses import FileResponse
-from fastapi import UploadFile
+from fastapi import  BackgroundTasks, UploadFile
 import shutil
 from pathlib import Path
 from ..service.SmarttoolService import smarttool_service
@@ -51,8 +51,7 @@ class SmarttoolController:
                     "code": 400,
                     "message": f"Excel文件验证失败: {str(e)}"
                 }
-                
-            
+        
             return {
                 "code": 200,
                 "message": "文件上传成功",
@@ -79,18 +78,9 @@ class SmarttoolController:
             }
         }
 
-    async def start_task(self):
+    async def start_task(self, background_tasks: BackgroundTasks):
         try:
-            # 初始化后台任务对象
-            await BgTasks.init_bg_tasks_obj()
-            
-            logger.info("开始处理任务 in controller")
-            
-            # 修改为调用 Service 层的方法
-            await BgTasks.add_task(smarttool_service.process_task)
-            # 确保任务执行
-            await BgTasks.execute_tasks()
-            
+            background_tasks.add_task(smarttool_service.process_task)
             return {
                 "code": 200,
                 "message": "任务启动成功",
@@ -103,18 +93,59 @@ class SmarttoolController:
                 "code": 500,
                 "message": f"任务启动失败: {str(e)}"
             }
+            
+    async def get_task_progress(self):
+        """获取任务进度"""
+        try:
+            progress = await smarttool_service.get_task_progress()
+            return {
+                "code": 200,
+                "message": "获取任务进度成功",
+                "data": progress
+            }
+        except Exception as e:
+            return {
+                "code": 500,
+                "message": f"获取任务进度失败: {str(e)}"
+            }
 
     # 删除原 controller 中的 process_task 方法
     async def confirm_download(self):
-        # 返回输出文件
-        output_file = self.output_dir / "result.xlsx"
+        """确认下载生成的文档"""
+        output_file = self.output_dir / "data.docx"
         if output_file.exists():
-            return FileResponse(
-                path=str(output_file),
-                filename="result.xlsx",
-                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+            response = {
+                "code": 200,
+                "data": {
+                    "url": "/resource/file/output/data.docx"
+                }
+            }
+            
+            # 清理中间文件
+            try:
+                # 清理图片缓存
+                image_cache_dir = Path("web/public/resource/file/output/cache/images")
+                if image_cache_dir.exists():
+                    shutil.rmtree(image_cache_dir)
+                    logger.info("已清理图片缓存目录")
+                
+                # 清理 JSON 文件
+                json_file = self.output_dir / "data.json"
+                if json_file.exists():
+                    json_file.unlink()
+                    logger.info("已清理 JSON 文件")
+                    
+            except Exception as e:
+                logger.error(f"清理中间文件时出错: {str(e)}")
+                # 即使清理失败也继续返回下载链接
+                
+            return response
         else:
-            return {"message": "输出文件不存在"}
+            return {
+                "code": 404,
+                "message": "输出文件不存在"
+            }
+    
+    
 
 smarttool_controller = SmarttoolController()

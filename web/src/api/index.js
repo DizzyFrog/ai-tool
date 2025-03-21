@@ -56,6 +56,7 @@ export default {
   submitSmartToolForm: (data) => request.post('/smarttool/submit_form', data),
   startSmartToolTask: () => request.post('/smarttool/start_task'),
   confirmSmartToolDownload: () => request.get('/smarttool/confirm_download'),
+  getProgress:() => request.get('/smarttool/get_progress'),
 
 }
 

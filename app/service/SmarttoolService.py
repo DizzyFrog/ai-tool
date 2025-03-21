@@ -18,7 +18,7 @@ class SmarttoolService:
             logger.info("开始处理任务")
 
             # 解析
-            result = resolver.process_data()
+            # result = resolver.process_data()
             chapter_list = resolver.get_data_result()
             resolver.get_docx(chapter_list)
             
@@ -28,9 +28,7 @@ class SmarttoolService:
         return None
     
     async def validateExcel(self, file):
-        # 在这里添加Excel验证逻辑
-        #  raise ValueError("Excel文件格式不正确或数据不完整")
-        #读取文件名和第三个sheet页的名字
+        logger.info("开始验证Excel文件")
 
         filename = file.name
         logger.info(filename)
@@ -46,6 +44,17 @@ class SmarttoolService:
         
         # 更新配置文件
         await self.update_config(config)
+        
+        # 重置 resolver 的 DataFrame 缓存
+        resolver.df = None
+        
+        # 处理数据生成 JSON
+        resolver.process_data()
+        problems = resolver.check_info(resolver.output_path)
+        logger.info(problems)
+        if len(problems) > 0:
+            raise ValueError(f"Excel文件验证失败: {problems}")
+        
 
     async def update_config(self, config: dict):
         
@@ -67,6 +76,14 @@ class SmarttoolService:
             raise ValueError(f"更新配置文件失败: {str(e)}")
     
 
+    async def get_task_progress(self):
+        """获取任务处理进度"""
+        try:
+            progress = await resolver.get_progress()
+            return progress
+        except Exception as e:
+            logger.error(f"获取进度信息失败: {str(e)}")
+       
     
 
 smarttool_service = SmarttoolService()  # 修正类名拼写错误

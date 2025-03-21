@@ -114,10 +114,11 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { NSelect, NButton, NForm, NFormItem, NInput, NUpload, NGrid, NGi, NCard, NSpace, NProgress, NModal, NSteps, NStep, NTable } from 'naive-ui';
-import { useMessage } from 'naive-ui';
+import { useMessage, useDialog } from 'naive-ui';  // 添加 useDialog
 
 import api from '@/api'
 const message = useMessage();
+const dialog = useDialog();  // 初始化 dialog
 
 const currentStep = ref(1);
 const templates = ref([
@@ -182,14 +183,19 @@ const handleUploadClick = async () => {
     if (response.code === 200) {
       message.success('文件上传成功');
       uploadSuccess.value = true;
-      // 自动进入下一步
       nextStep();
     } else {
-      throw new Error(response.message || '上传失败');
+      throw new Error(response.message || '文件上传失败');
     }
   } catch (error) {
-    message.error('文件上传失败');
-    console.error('上传文件错误:', error);
+    const errorMessage = error.response?.data?.message || error.message || '文件上传失败';
+    dialog.error({
+      title: 'Excel 验证失败',
+      content: error.error.message,
+      positiveText: '确定',
+     
+    });
+    console.error('上传文件错误1:', error.error.message);
   }
 };
 
@@ -220,6 +226,7 @@ const isRunning = ref(false);
 const progress = ref(0);
 const showTaskCompleteModal = ref(false);
 const showArchiveModal = ref(false);
+let progressInterval = null; // 添加轮询间隔变量
 
 // 开始任务
 const startTask = async () => {
@@ -229,16 +236,27 @@ const startTask = async () => {
   
   try {
     await api.startSmartToolTask();
-    
-    const interval = setInterval(() => {
-      if (progress.value >= 100) {
-        clearInterval(interval);
+    // 开始轮询进度
+    progressInterval = setInterval(async () => {
+      try {
+        const response = await api.getProgress();
+        if (response.code === 200) {
+          progress.value = response.data.percentage;
+          
+          // 如果进度达到100%，停止轮询并显示完成弹窗
+          if (progress.value >= 100) {
+            clearInterval(progressInterval);
+            isRunning.value = false;
+            showTaskCompleteModal.value = true;
+          }
+        }
+      } catch (error) {
+        console.error('获取进度失败:', error);
+        clearInterval(progressInterval);
         isRunning.value = false;
-        showTaskCompleteModal.value = true; // 显示任务完成弹窗
-      } else {
-        progress.value += 10;
+        message.error('获取进度信息失败');
       }
-    }, 500);
+    }, 1000); // 每秒轮询一次
   } catch (error) {
     isRunning.value = false;
     message.error('任务启动失败');
@@ -246,14 +264,33 @@ const startTask = async () => {
   }
 };
 
+// 在组件卸载时清除轮询
+onUnmounted(() => {
+  if (progressInterval) {
+    clearInterval(progressInterval);
+  }
+});
+
 // 确认下载文件
 const confirmDownload = async () => {
   showTaskCompleteModal.value = false; // 关闭任务完成弹窗
   
   try {
-    await api.confirmSmartToolDownload();
-    message.success('文件下载成功');
-    showArchiveModal.value = true; // 显示文件归档弹窗
+    const response = await api.confirmSmartToolDownload();
+    if (response.code === 200 && response.data.url) {
+      // 创建一个a标签来触发下载
+      const link = document.createElement('a');
+      link.href = response.data.url;
+      link.download = 'data.docx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      message.success('文件下载成功');
+      showArchiveModal.value = true; // 显示文件归档弹窗
+    } else {
+      throw new Error(response.message || '下载失败');
+    }
   } catch (error) {
     message.error('文件下载失败');
     console.error('确认下载错误:', error);
@@ -266,7 +303,6 @@ const resetToStepOne = () => {
   progress.value = 0; // 重置进度条
   currentStep.value = 1; // 返回步骤一
   isRunning.value = false; // 重置运行状态
-  formData.value = { key: '', param1: '', param2: '', param3: '' }; // 重置表单数据
   selectedTemplate.value = ''; // 重置模板选择
   uploadSuccess.value = false; // 重置上传状态
 };

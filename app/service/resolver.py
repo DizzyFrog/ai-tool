@@ -26,6 +26,13 @@ class MetaDataProcessor:
         # self.columns = ["B", "C", "D", "E", "F", "H", "L"]
         self.columns = ['功能用户需求', '触发事件', '功能过程', '子过程描述', '数据组', '功能用户', '角色']
         self.output_path = Path("web/public/resource/file/output/data.json")
+        
+        self.progress = {
+            "current_key": "",
+            "total": 0,
+            "current": 0,
+            "percentage": 0
+        }
 
     def _clean_text(self, text: str) -> str:
         """清理文本中的空白字符"""
@@ -50,7 +57,7 @@ class MetaDataProcessor:
                 raise
         return self.df
 
-    def check_info(self, json_path: Path) -> int:
+    def check_info(self, json_path: Path):
         """
         校验生成的JSON文件内容
         
@@ -58,11 +65,11 @@ class MetaDataProcessor:
             json_path: JSON文件路径
             
         Returns:
-            int: 发现的问题数量
+            problems: 发现的问题数量列表
         """
         with open(json_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
-        problems = 0
+        problems = []
 
         for key, value in data.items():
             # 功能
@@ -74,7 +81,7 @@ class MetaDataProcessor:
                     item_value = item_value.replace(',', '，')
                     role = item_value.strip().split("，")
                     if len(role) != 3:
-                        problems += 1
+                        problems.append(f"角色信息不全，{key}")
                         logger.error(f"角色信息不全，{key}")
                 else:
                     functions.append(item_key)
@@ -83,21 +90,23 @@ class MetaDataProcessor:
                     if len(process) != 3:
                         pass
                         # problems += 1
-                        # logger.error(f"功能过程不是三个，{key}")
-
+                        problems.append(f"角色信息不全，{key}")
+                        logger.error(f"功能过程不是三个，{key}")
         return problems
 
     def process_data(self):
-        """
-        处理Excel数据并生成JSON
-        
-        Args:
-            output_path (str): 输出JSON文件路径
-            
-        Returns:
-            str: JSON格式的字符串
-        """
         try:
+            # 重置 DataFrame 缓存，确保读取最新的 Excel 文件
+            self.df = None
+            
+            # 初始化进度
+            self.progress = {
+                "current_key": "正在解析Excel数据",
+                "total": 0,
+                "current": 0,
+                "percentage": 0
+            }
+            
             df = self.read_excel()
             result_dict = OrderedDict()
 
@@ -134,14 +143,6 @@ class MetaDataProcessor:
             with open(self.output_path, 'w', encoding='utf-8') as file:
                 file.write(json_result)
                 logger.info(f"数据已保存至: {self.output_path}")
-
-            # 校验生成的JSON文件
-            problems = self.check_info(self.output_path)
-            if problems > 0:
-                logger.warning(f"检查到 {problems} 个问题")
-            else:
-                logger.info("数据校验通过")
-
             return json_result
 
         except Exception as e:
@@ -161,7 +162,19 @@ class MetaDataProcessor:
                 data = json.load(file)
             result = []
 
-            for key, value in (data.items()):
+            # 计算总数
+            total_items = len(data.items())
+            self.progress["total"] = total_items
+            
+            for idx, (key, value) in enumerate(data.items(), 1):
+                # 更新进度信息
+                self.progress.update({
+                    "current_key": key,
+                    "current": idx,
+                    "percentage": int((idx / total_items) * 100)
+                })
+                logger.info(f"正在处理: {key} ({idx}/{total_items})")
+                
                 functions = []
                 features = []
                 
@@ -246,4 +259,8 @@ class MetaDataProcessor:
             logger.error(f"生成Word文档时出错: {str(e)}")
             raise
     
+    
+    async def get_progress(self):
+        """获取当前处理进度"""
+        return self.progress
 resolver = MetaDataProcessor()
