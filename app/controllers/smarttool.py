@@ -126,7 +126,11 @@ class SmarttoolController:
                 # 清理图片缓存
                 image_cache_dir = Path("web/public/resource/file/output/cache/images")
                 if image_cache_dir.exists():
-                    shutil.rmtree(image_cache_dir)
+                    for item in image_cache_dir.iterdir():
+                        if item.is_file():
+                            item.unlink()  # 删除文件
+                        elif item.is_dir():
+                            shutil.rmtree(item)  # 递归删除文件夹
                     logger.info("已清理图片缓存目录")
                 
                 # 清理 JSON 文件

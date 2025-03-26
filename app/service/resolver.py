@@ -13,6 +13,8 @@ from .tool import get_description, get_structure, get_flow_chart
 
 from docx import Document
 from docx.shared import Inches
+import concurrent.futures
+from functools import partial
 
 class MetaDataProcessor:
     """处理Excel元数据的类"""
@@ -149,54 +151,82 @@ class MetaDataProcessor:
             logger.error(f"处理数据时出错: {str(e)}")
             raise
     
+    def process_feature(self, item_key, item_value, role):
+        """处理单个特性的辅助函数"""
+        scenario = item_key
+        process = item_value[0]
+        flow_chart = get_flow_chart(role, process)
+        input_data = item_value[1][0]
+        output = item_value[1][-1]
+        return Feature(scenario, flow_chart, process, input_data, output, role)
+
     def get_data_result(self) -> list:
         """
-        封装数据为结构化对象
+        并行处理数据封装
         
         Returns:
             list: 包含 Chapter 对象的列表
         """
         try:
-            # 读取JSON文件
             with open(self.output_path, 'r', encoding='utf-8') as file:
                 data = json.load(file)
             result = []
 
-            # 计算总数
             total_items = len(data.items())
             self.progress["total"] = total_items
             
-            for idx, (key, value) in enumerate(data.items(), 1):
-                # 更新进度信息
-                self.progress.update({
-                    "current_key": key,
-                    "current": idx,
-                    "percentage": int((idx / total_items) * 100)
-                })
-                logger.info(f"正在处理: {key} ({idx}/{total_items})")
-                
-                functions = []
-                features = []
-                
-                for item_index, (item_key, item_value) in enumerate(value.items()):
-                    if item_index == 0:
-                        item_value = item_value.replace(',', '，')
-                        role = item_value.strip().split("，")
-                    else:
-                        functions.append(item_key)
-                        scenario = item_key
-                        process = item_value[0]
-                        flow_chart = get_flow_chart(role, process)
-                        input = item_value[1][0]
-                        output = item_value[1][-1]
-                        feature = Feature(scenario, flow_chart, process, input, output, role)
-                        features.append(feature)
+            # 创建线程池执行器
+            with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+                for idx, (key, value) in enumerate(data.items(), 1):
+                    self.progress.update({
+                        "current_key": key,
+                        "current": idx,
+                        "percentage": int((idx / total_items) * 100)
+                    })
+                    logger.info(f"正在处理: {key} ({idx}/{total_items})")
+                    
+                    functions = []
+                    features = []
+                    role = None
+                    
+                    # 收集需要并行处理的特性任务
+                    feature_tasks = []
+                    for item_index, (item_key, item_value) in enumerate(value.items()):
+                        if item_index == 0:
+                            item_value = item_value.replace(',', '，')
+                            role = item_value.strip().split("，")
+                        else:
+                            functions.append(item_key)
+                            # 创建特性处理任务
+                            feature_tasks.append(
+                                executor.submit(
+                                    self.process_feature,
+                                    item_key,
+                                    item_value,
+                                    role
+                                )
+                            )
+                    
+                    # 收集所有特性处理结果
+                    for future in concurrent.futures.as_completed(feature_tasks):
+                        try:
+                            feature = future.result()
+                            features.append(feature)
+                        except Exception as e:
+                            logger.error(f"处理特性时出错: {str(e)}")
+                            raise
 
-                description = get_description(key, functions)
-                structure = get_structure(key, functions)
-                chapter = Chapter(name=key, description=description, functions=functions, 
-                                structure=structure, feature=features)
-                result.append(chapter)
+                    # 生成章节描述和结构（这部分保持串行）
+                    description = get_description(key, functions)
+                    structure = get_structure(key, functions)
+                    chapter = Chapter(
+                        name=key,
+                        description=description,
+                        functions=functions,
+                        structure=structure,
+                        feature=features
+                    )
+                    result.append(chapter)
                 
             logger.info("数据封装完成")
             return result
